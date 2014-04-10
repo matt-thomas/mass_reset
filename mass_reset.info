@@ -1,0 +1,3 @@
+name = Mass Reset
+description = Provides an action for sending user password reset emails.
+core = 6.x
