@@ -35,7 +35,7 @@ function mass_reset_send_password_reset_email($accounts) {
     $user = user_load(array('uid' => (int)$uid));
     if ($uid && $uid > 1) {
       // set blank password for user
-      db_query("UPDATE {users} SET password = '' WHERE uid = %d", $uid);
+      db_query("UPDATE {users} SET pass = '' WHERE uid = %d", $uid);
       // send password reset email
       _user_mail_notify('password_reset', $user);
       // destroy all user sessions
@@ -63,7 +63,7 @@ function mass_reset_send_password_reset_email_user_action(&$object, $context = a
   if ($uid && $uid > 1) {
     $user = user_load($uid);
     // set blank password for user
-    db_query("UPDATE {users} SET password = '' WHERE uid = %d", $uid);
+    db_query("UPDATE {users} SET pass = '' WHERE uid = %d", $uid);
     // send password reset email
     _user_mail_notify('password_reset', $user);
     // destroy all user sessions
