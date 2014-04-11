@@ -6,8 +6,12 @@
 function mass_reset_user_operations() {
   $operations = array(
     'reset' => array(
-      'label' => t('Reset the selected user passwords'),
+      'label' => t('Reset the selected user passwords and send password reset email'),
       'callback' => 'mass_reset_send_password_reset_email',
+    ),
+    'resetnomail' => array(
+      'label' => t('Reset the selected user passwords, no reset email'),
+      'callback' => 'mass_reset_send_password_reset_noemail',
     ),
   );
   return $operations;
@@ -19,7 +23,13 @@ function mass_reset_user_operations() {
 function mass_reset_action_info() {
   return array(
     'mass_reset_send_password_reset_email_user_action' => array(
-      'description' => t('Send password reset email'),
+      'description' => t('Reset user password and send password reset email'),
+      'type' => 'user',
+      'configurable' => FALSE,
+      'hooks' => array(),
+    ),
+    'mass_reset_send_password_reset_noemail_user_action' => array(
+      'description' => t('Reset user password, no reset email'),
       'type' => 'user',
       'configurable' => FALSE,
       'hooks' => array(),
@@ -38,8 +48,25 @@ function mass_reset_send_password_reset_email($accounts) {
       db_query("UPDATE {users} SET pass = '%s' WHERE uid = %d", $randpass, $uid);
       $user = user_load(array('uid' => (int)$uid));
       // send password reset email
-      _user_mail_notify('password_reset', $user, $language);
       global $language;
+      _user_mail_notify('password_reset', $user, $language);
+      // destroy all user sessions
+      sess_destroy_uid($uid);
+      watchdog('action', 'Sent password reset email for user %name.', array('%name' => check_plain($user->name)));
+    }
+  }
+}
+
+/**
+ * Operations callback. Sets password blank but does not send email.
+*/
+function mass_reset_send_password_reset_noemail($accounts) {
+  foreach ($accounts as $uid) {
+    if ($uid && $uid > 1) {
+      // set random password for user
+      $randpass = user_password();
+      db_query("UPDATE {users} SET pass = '%s' WHERE uid = %d", $randpass, $uid);
+      $user = user_load(array('uid' => (int)$uid));
       // destroy all user sessions
       sess_destroy_uid($uid);
       watchdog('action', 'Sent password reset email for user %name.', array('%name' => check_plain($user->name)));
@@ -49,7 +76,7 @@ function mass_reset_send_password_reset_email($accounts) {
 
 /**
  * Implementation of a Drupal action.
- * Sends the user a password reset email.
+ * Reset a user's password and sends the user a password reset email.
  */
 function mass_reset_send_password_reset_email_user_action(&$object, $context = array()) {
   if (isset($object->uid)) {
@@ -70,6 +97,32 @@ function mass_reset_send_password_reset_email_user_action(&$object, $context = a
     // send password reset email
     global $language;
     _user_mail_notify('password_reset', $user, $language);
+    // destroy all user sessions
+    sess_destroy_uid($uid);
+    watchdog('action', 'Sent password reset email for user %name.', array('%name' => check_plain($user->name)));
+  }
+}
+
+/**
+ * Implementation of a Drupal action.
+ * Resets a user password but doesn't send email.
+ */
+function mass_reset_send_password_reset_noemail_user_action(&$object, $context = array()) {
+  if (isset($object->uid)) {
+    $uid = $object->uid;
+  }
+  elseif (isset($context['uid'])) {
+    $uid = $context['uid'];
+  }
+  else {
+    // something went wrong
+    $uid = NULL;
+  }
+  if ($uid && $uid > 1) {
+    // set random password for user
+    $randpass = user_password();
+    db_query("UPDATE {users} SET pass = '%s' WHERE uid = %d", $randpass, $uid);
+    $user = user_load($uid);
     // destroy all user sessions
     sess_destroy_uid($uid);
     watchdog('action', 'Sent password reset email for user %name.', array('%name' => check_plain($user->name)));
