@@ -44,7 +44,7 @@ function mass_reset_send_password_reset_email($accounts) {
   foreach ($accounts as $uid) {
     if ($uid && $uid > 1) {
       // set random password for user
-      $randpass = user_password();
+      $randpass = md5(user_password());
       db_query("UPDATE {users} SET pass = '%s' WHERE uid = %d", $randpass, $uid);
       $user = user_load(array('uid' => (int)$uid));
       // send password reset email
@@ -64,7 +64,7 @@ function mass_reset_send_password_reset_noemail($accounts) {
   foreach ($accounts as $uid) {
     if ($uid && $uid > 1) {
       // set random password for user
-      $randpass = user_password();
+      $randpass = md5(user_password());
       db_query("UPDATE {users} SET pass = '%s' WHERE uid = %d", $randpass, $uid);
       $user = user_load(array('uid' => (int)$uid));
       // destroy all user sessions
@@ -91,7 +91,7 @@ function mass_reset_send_password_reset_email_user_action(&$object, $context = a
   }
   if ($uid && $uid > 1) {
     // set random password for user
-    $randpass = user_password();
+    $randpass = md5(user_password());
     db_query("UPDATE {users} SET pass = '%s' WHERE uid = %d", $randpass, $uid);
     $user = user_load($uid);
     // send password reset email
@@ -120,7 +120,7 @@ function mass_reset_send_password_reset_noemail_user_action(&$object, $context =
   }
   if ($uid && $uid > 1) {
     // set random password for user
-    $randpass = user_password();
+    $randpass = md5(user_password());
     db_query("UPDATE {users} SET pass = '%s' WHERE uid = %d", $randpass, $uid);
     $user = user_load($uid);
     // destroy all user sessions
