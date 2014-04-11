@@ -1,3 +1,4 @@
 name = Mass Reset
 description = Provides an action for sending user password reset emails.
 core = 6.x
+version = 6.x-1.x-dev

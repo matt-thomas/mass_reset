@@ -6,7 +6,7 @@
 function mass_reset_user_operations() {
   $operations = array(
     'reset' => array(
-      'label' => t('Reset the selected user passwords.'),
+      'label' => t('Reset the selected user passwords'),
       'callback' => 'mass_reset_send_password_reset_email',
     ),
   );
@@ -19,7 +19,7 @@ function mass_reset_user_operations() {
 function mass_reset_action_info() {
   return array(
     'mass_reset_send_password_reset_email_user_action' => array(
-      'description' => t('Send password reset email.'),
+      'description' => t('Send password reset email'),
       'type' => 'user',
       'configurable' => FALSE,
       'hooks' => array(),
